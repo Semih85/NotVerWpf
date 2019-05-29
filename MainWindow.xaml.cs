@@ -24,41 +24,131 @@ namespace NotVerWpf
     {
         public MainWindow()
         {
+            //_excelProgramla = new ExcelProgramla();
             InitializeComponent();
         }
 
         private void NotVer_Click(object sender, RoutedEventArgs e)
         {
-            var excel2 = new ExcelProgramla();
+            var excelProgramla = new ExcelProgramla();
 
-            NotVer(excel2, 4, 10);
+            NotVer(excelProgramla);
 
-            void NotVer(ExcelProgramla excel, int sutunNumarasi, int toplamSutunSayisi)
+            void NotVer(ExcelProgramla excel)
             {
-                var row = excel.RowNumber;
-                var col = excel.ColumnNumber;
+                var row = excel.AktifSatir;
+                var col = excel.AktifSutun;
+                var enAzNot = Convert.ToInt32(txtEnAzNot.Text);
 
-                //int[,] rr = new int[24, 7];
                 do
                 {
-                    var t = 0;
-                    var h = 0;
-                    //Console.WriteLine("--- r: " + row);
-                    for (int j = sutunNumarasi; j <= toplamSutunSayisi; j++)
+                    var toplaminEsitlenecegiDeger = excel.ReadCellInt(row, excel.ToplaminEsitlenecegiSutun);
+                    //excel.ToplamNot = 0;
+
+                    NotlariRasgeleDagit(excel, row, enAzNot, toplaminEsitlenecegiDeger);
+
+                    excel.WriteCell(row, excel.ToplamSutunu, excel.ToplamNot);
+
+                    if (toplaminEsitlenecegiDeger < enAzNot * excel.KriterSayisi)
                     {
-                        //var deger = excel.ReadCell<int>(row, col);
-                        var a = 5;
-
-                        var b = excel.ReadCell<int>(row - (1 + t), h);
-                        excel.WriteCell(row, col, 5);
-                        //Console.WriteLine(deger);
-                        col++;
+                        MessageBox.Show($"Eşitlenecek not en az {enAzNot * excel.KriterSayisi} olmalıdır. ({toplaminEsitlenecegiDeger})");
+                        return;
                     }
+
+                    var h = col;
+
+                    if (excel.ToplamNot < toplaminEsitlenecegiDeger)
+                    {
+                        do
+                        {
+                            //if (h < excel.ToplamSutunu)
+                            //{
+                            var artacakSayi = excel.ReadCellInt(row, h);
+
+                            artacakSayi += 5;
+                            excel.ToplamNot += 5;
+
+                            excel.WriteCell(row, h, artacakSayi);
+                            excel.WriteCell(row, excel.ToplamSutunu, excel.ToplamNot);
+                            //}
+
+                            if (h == excel.ToplamSutunu)
+                            {
+                                h = col;
+                            }
+                            else
+                            {
+                                h++;
+                            }
+
+                        } while (excel.ToplamNot < toplaminEsitlenecegiDeger);
+                    }
+                    else
+                    {
+                        do
+                        {
+                            var azlacakSayi = excel.ReadCellInt(row, h);
+
+                            if (azlacakSayi > enAzNot)
+                            {
+                                azlacakSayi -= 5;
+                                excel.ToplamNot -= 5;
+
+                                excel.WriteCell(row, h, azlacakSayi);
+                                excel.WriteCell(row, excel.ToplamSutunu, excel.ToplamNot);
+                            }
+
+                            if (h == excel.ToplamSutunu)
+                            {
+                                h = col;
+                            }
+                            else
+                            {
+                                h++;
+                            }
+
+                        } while (excel.ToplamNot > toplaminEsitlenecegiDeger);
+                    }
+
                     row++;
-                    col = excel.ColumnNumber;
 
-                } while (excel.ReadCell<string>(row, sutunNumarasi - 1) != null);
+                } while (excel.ReadCellString(row, excel.AktifSutun - 1) != "");
 
+                MessageBox.Show("Notlar başarı ile verildi.");
+                //lblSonuc.Content = "Notlar başarı ile verildi.";
+            }
+        }
+
+        private void NotlariRasgeleDagit(ExcelProgramla excel, int row, int enAzNot, int toplaminEsitlenecegiDeger)
+        {
+            var r = new Random();
+
+            excel.ToplamNot = 0;
+
+            for (int i = excel.AktifSutun; i < excel.ToplamSutunu; i++)
+            {
+                if (toplaminEsitlenecegiDeger == 0)
+                {
+                    excel.ToplamNot = 0;
+                    excel.WriteCell(row, i, 0);
+                }
+                else
+                {
+                    var a = enAzNot;
+                    var b = excel.ReadCellInt(excel.KriterSatiri, i);
+                    var hesaplanacakSayi = Math.Round(r.NextDouble() * (b - a) + a, 0);
+                    var modHesapla = hesaplanacakSayi % 5;
+                    if (modHesapla > 0)
+                    {
+                        do
+                        {
+                            hesaplanacakSayi--;
+                            modHesapla = hesaplanacakSayi % 5;
+                        } while (modHesapla != 0);
+                    }
+                    excel.WriteCell(row, i, hesaplanacakSayi);
+                    excel.ToplamNot += hesaplanacakSayi;
+                }
             }
         }
 
@@ -67,13 +157,14 @@ namespace NotVerWpf
             public Workbook WorkBook { get; set; }
             public Worksheet WorkSheet { get; set; }
             public Range Range { get; set; }
-            public int RowNumber { get; set; }
-            public int ColumnNumber { get; set; }
+            public int AktifSatir { get; set; }
+            public int AktifSutun { get; set; }
             public int ToplamSatirSayisi { get; set; }
             public int ToplamSutunSayisi { get; set; }
             public int ToplamSutunu { get; set; }
+            public double ToplamNot { get; set; }
             public int ToplaminEsitlenecegiSutun { get; set; }
-            public int KriterSatiri => RowNumber - 1;
+            public int KriterSatiri => AktifSatir - 1;
             public int KriterSayisi { get; set; }
             public int KriterlerinToplami { get; set; }
 
@@ -84,48 +175,53 @@ namespace NotVerWpf
                 WorkBook = oXL.ActiveWorkbook;
                 WorkSheet = WorkBook.ActiveSheet;
                 Range = WorkSheet.Application.ActiveCell;
-                RowNumber = Range.Row;
-                ColumnNumber = Range.Column;
-                ToplamSatirSayisiHesapla();
-                ToplamSutunSayisiHesapla();
-                KriterToplamlariHesapla();
+                AktifSatir = Range.Row;
+                AktifSutun = Range.Column;
+                ParametreleriHesapla();
                 //var w = WorkBook.Name;
                 //var s = WorkSheet.Name;
             }
 
-            private void ToplamSutunSayisiHesapla()
+            private void ParametreleriHesapla()
             {
-                ToplamSutunSayisi = ColumnNumber;
-
-                do
-                {
-                    ToplamSutunSayisi++;
-                } while (ReadCell<int>(KriterSatiri, ToplamSutunSayisi) != 0);
-
-                ToplaminEsitlenecegiSutun = ToplamSutunSayisi;
-                ToplamSutunu = ToplamSutunSayisi - 1;
-                ToplamSutunSayisi = ToplamSutunu - 1;
-                KriterSayisi = ToplamSutunu - ColumnNumber;
+                ToplamSatirSayisiHesapla();
+                ToplamSutunSayisiHesapla();
+                KriterToplamlariHesapla();
             }
 
             private void KriterToplamlariHesapla()
             {
-                for (int i = ColumnNumber; i < ToplamSutunu; i++)
+                for (int i = AktifSutun; i < ToplamSutunu; i++)
                 {
-                    KriterlerinToplami += ReadCell<int>(KriterSatiri, i);
+                    KriterlerinToplami += ReadCellInt(KriterSatiri, i);
                 }
 
                 if (KriterlerinToplami != 100)
                 {
-                    throw new Exception("Kriterlerin toplamı 100 olmalıdır.");
+                    MessageBox.Show("Kriterlerin toplamı 100 olmalıdır.");
+                    return;
+                    //throw new Exception("Kriterlerin toplamı 100 olmalıdır.");
                 }
             }
+            private void ToplamSutunSayisiHesapla()
+            {
+                ToplamSutunSayisi = AktifSutun;
 
+                do
+                {
+                    ToplamSutunSayisi++;
+                } while (ReadCellString(KriterSatiri, ToplamSutunSayisi) != "");
+
+                ToplaminEsitlenecegiSutun = ToplamSutunSayisi;
+                ToplamSutunu = ToplamSutunSayisi - 1;
+                ToplamSutunSayisi = ToplamSutunu - 1;
+                KriterSayisi = ToplamSutunu - AktifSutun;
+            }
             private void ToplamSatirSayisiHesapla()
             {
-                ToplamSatirSayisi = RowNumber;
+                ToplamSatirSayisi = AktifSatir;
 
-                while (ReadCell<string>(ToplamSatirSayisi, ColumnNumber - 1) != null && ReadCell<string>(ToplamSatirSayisi, ColumnNumber - 1) != "")
+                while (ReadCellString(ToplamSatirSayisi, AktifSutun - 1) != "")
                 {
                     ToplamSatirSayisi++;
                 }
@@ -141,14 +237,36 @@ namespace NotVerWpf
                 WorkSheet = WorkBook.Worksheets[sheet];
             }
 
-            public T ReadCell<T>(int i, int j)
+            public int ReadCellInt(int i, int j)
             {
-                return (T)WorkSheet.Cells[i, j].Value2;
+                var deger = WorkSheet.Cells[i, j].Value2;
+
+                if (deger == null)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return Convert.ToInt32(deger);
+                }
+            }
+            public string ReadCellString(int i, int j)
+            {
+                var deger = WorkSheet.Cells[i, j].Value2;
+
+                if (deger == null)
+                {
+                    return "";
+                }
+                else
+                {
+                    return Convert.ToString(deger);
+                }
             }
 
             public void WriteCell(int i, int j, double deger)
             {
-                WorkSheet.Cells[i, j].Value2 = deger;
+                WorkSheet.Cells[i, j].Value = deger;
             }
 
             public void WriteCell(int i, int j, string deger)
@@ -163,5 +281,6 @@ namespace NotVerWpf
 
             //}
         }
+
     }
 }
