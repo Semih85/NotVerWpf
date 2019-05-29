@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NotVerWpf"
         mc:Ignorable="d"
-        Title="Not Ver" Height="450" Width="800">
-    <Grid>
-        <Button Content="Not Ver" HorizontalAlignment="Left" Margin="310,214,0,0" VerticalAlignment="Top" Width="148" Height="51" Click="NotVer_Click" FontSize="20" Background="#FFADC972" FontWeight="Bold"/>
-        <TextBox HorizontalAlignment="Left" Height="35" Margin="435,141,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="50" Name="txtEnAzNot" FontSize="16" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" RenderTransformOrigin="0.5,0.5" >
+        Title="Not Ver" Height="320.424" Width="439.397">
+    <Grid Margin="0,0,2,-1">
+        <Button Content="Not Ver" HorizontalAlignment="Left" Margin="132,201,0,0" VerticalAlignment="Top" Width="148" Height="51" Click="NotVer_Click" FontSize="20" Background="#FFADC972" FontWeight="Bold"/>
+        <TextBox HorizontalAlignment="Left" Height="30" Margin="270,99,0,0" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" Width="45" Name="txtEnAzNot" FontSize="16" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" RenderTransformOrigin="0.5,0.5" >
             <TextBox.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform/>
@@ -18,9 +18,11 @@
                 </TransformGroup>
             </TextBox.RenderTransform>
         </TextBox>
-        <Label Content="Her bir gözlem için en az not:" HorizontalAlignment="Left" Margin="213,142,0,0" VerticalAlignment="Top" Width="222" Height="32" FontSize="16"/>
-        <Label Content="" HorizontalAlignment="Left" Name="lblSonuc" Margin="170,302,0,0" VerticalAlignment="Top" Height="36" Width="180" FontSize="16"/>
-        <Label Content="Notlandırma yapmak istediğiniz ilk hücreyi seçin !!!" HorizontalAlignment="Left" Margin="199,74,0,0" VerticalAlignment="Top" Height="53" Width="449" FontSize="16"/>
+        <Label Content="Her bir gözlem için en az not:" HorizontalAlignment="Left" Margin="43,96,0,0" VerticalAlignment="Top" Width="222" Height="32" FontSize="16"/>
+        <Label Content="" HorizontalAlignment="Left" Name="lblSonuc" Margin="21,314,0,0" VerticalAlignment="Top" Height="36" Width="180" FontSize="16"/>
+        <Label Content="Not vermeden önce ilk öğrencinin ilk notunu seçin !!!" HorizontalAlignment="Left" Margin="21,27,0,0" VerticalAlignment="Top" Height="53" Width="390" FontSize="16"/>
+        <TextBox HorizontalAlignment="Left" Name="txtKatsayi" Height="30" Margin="270,143,0,0" TextWrapping="Wrap" Text="1" VerticalAlignment="Top" Width="45" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="16"/>
+        <Label Content="Katsayı:" HorizontalAlignment="Left" Margin="43,142,0,0" VerticalAlignment="Top" Width="222" Height="32" FontSize="16"/>
 
     </Grid>
 </Window>
